@@ -84,6 +84,16 @@ export const admin = <O extends AdminOptions>(options?: O) => {
 	} as const;
 	const adminMiddleware = createAuthMiddleware(async (ctx) => {
 		const session = await getSessionFromCtx(ctx);
+		// Skip auth check if skipAuth flag is set (for server-side API calls)
+		// @ts-ignore - skipAuth is added at runtime
+		if (ctx.skipAuth) {
+			return {
+				session: session ? {
+					user: session.user as UserWithRole,
+					session: session.session,
+				} : undefined,
+			};
+		}
 		if (!session?.session) {
 			throw new APIError("UNAUTHORIZED");
 		}

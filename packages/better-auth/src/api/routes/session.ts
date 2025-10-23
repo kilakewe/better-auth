@@ -289,6 +289,13 @@ export const getSessionFromCtx = async <
 
 export const sessionMiddleware = createAuthMiddleware(async (ctx) => {
 	const session = await getSessionFromCtx(ctx);
+	// Skip auth check if skipAuth flag is set (for server-side API calls)
+	// @ts-ignore - skipAuth is added at runtime
+	if (ctx.skipAuth) {
+		return {
+			session: session || undefined,
+		};
+	}
 	if (!session?.session) {
 		throw new APIError("UNAUTHORIZED");
 	}
@@ -299,6 +306,13 @@ export const sessionMiddleware = createAuthMiddleware(async (ctx) => {
 
 export const freshSessionMiddleware = createAuthMiddleware(async (ctx) => {
 	const session = await getSessionFromCtx(ctx);
+	// Skip auth check if skipAuth flag is set (for server-side API calls)
+	// @ts-ignore - skipAuth is added at runtime
+	if (ctx.skipAuth) {
+		return {
+			session: session || undefined,
+		};
+	}
 	if (!session?.session) {
 		throw new APIError("UNAUTHORIZED");
 	}
