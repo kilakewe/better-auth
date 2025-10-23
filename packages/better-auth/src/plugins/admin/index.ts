@@ -594,7 +594,8 @@ export const admin = <O extends AdminOptions>(options?: O) => {
 					},
 				},
 				async (ctx) => {
-					if (ctx.body.userId === ctx.context.session.user.id) {
+					// Only check if not skipAuth mode (when session exists)
+					if (ctx.context.session && ctx.body.userId === ctx.context.session.user.id) {
 						throw new APIError("BAD_REQUEST", {
 							message: ERROR_CODES.YOU_CANNOT_BAN_YOURSELF,
 						});
@@ -673,7 +674,8 @@ export const admin = <O extends AdminOptions>(options?: O) => {
 						undefined,
 						true,
 						{
-							impersonatedBy: ctx.context.session.user.id,
+							// Use session user id if available, otherwise undefined (skipAuth mode)
+							impersonatedBy: ctx.context.session?.user?.id,
 							expiresAt: options?.impersonationSessionDuration
 								? getDate(options.impersonationSessionDuration, "sec")
 								: getDate(60 * 60, "sec"), // 1 hour
@@ -686,12 +688,15 @@ export const admin = <O extends AdminOptions>(options?: O) => {
 					}
 					const authCookies = ctx.context.authCookies;
 					deleteSessionCookie(ctx);
-					await ctx.setSignedCookie(
-						"admin_session",
-						ctx.context.session.session.token,
-						ctx.context.secret,
-						authCookies.sessionToken.options,
-					);
+					// Only set admin session cookie if there's an existing session
+					if (ctx.context.session?.session?.token) {
+						await ctx.setSignedCookie(
+							"admin_session",
+							ctx.context.session.session.token,
+							ctx.context.secret,
+							authCookies.sessionToken.options,
+						);
+					}
 					await setSessionCookie(
 						ctx,
 						{

@@ -16,6 +16,12 @@ export type HookEndpointContext<C extends Record<string, any> = {}> =
 		returnedHeaders: Headers;
 		endpointOptions: EndpointOptions;
 		method?: any;
+		/**
+		 * Flag to skip authentication checks when calling API methods from the server.
+		 * This allows server-side code to use the auth API without needing user authentication.
+		 * @internal
+		 */
+		skipAuth?: boolean;
 	};
 
 export type GenericEndpointContext = ContextTools & {
@@ -27,4 +33,10 @@ export type GenericEndpointContext = ContextTools & {
 	params?: Record<string, string> | undefined;
 	query?: any;
 	method?: any;
+	/**
+	 * Flag to skip authentication checks when calling API methods from the server.
+	 * This allows server-side code to use the auth API without needing user authentication.
+	 * @internal
+	 */
+	skipAuth?: boolean;
 };

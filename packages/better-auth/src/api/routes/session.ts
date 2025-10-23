@@ -262,6 +262,10 @@ export const getSessionFromCtx = async <
 		disableRefresh?: boolean;
 	},
 ) => {
+	// Skip session retrieval if skipAuth flag is set (for server-side API calls)
+	if (ctx.skipAuth) {
+		return null;
+	}
 	if (ctx.context.session) {
 		return ctx.context.session as {
 			session: S & Session;
